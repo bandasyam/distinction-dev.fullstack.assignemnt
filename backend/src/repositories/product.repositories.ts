@@ -18,11 +18,17 @@ export const insertProduct = async (products: ProductList, data: Product) => {
   return productRepository.insertToDb(products);
 };
 
-export const updateProduct = async (products: ProductList, data: Product, index: number) => {
+export const updateProduct = async (products: ProductList, data: Partial<Product>, index: number) => {
   let product = products[index];
   Object.assign(product, data);
 
   products[index] = product;
+
+  return productRepository.insertToDb(products);
+};
+
+export const deleteProduct = async (products: ProductList, index: number) => {
+  products.splice(index, 1);
 
   return productRepository.insertToDb(products);
 };

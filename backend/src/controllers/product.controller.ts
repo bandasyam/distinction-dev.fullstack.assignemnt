@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { createResponse } from "../utils/helpers";
 
-import { getProductsData, getProductsDataWithPagination, insertProduct, updateProduct } from "../repositories/product.repositories";
+import { getProductsData, getProductsDataWithPagination, insertProduct, updateProduct, deleteProduct } from "../repositories/product.repositories";
 
-import { Product, ProductList } from "../constants";
+import { ProductList, ProductStatus } from "../constants";
 
 async function createProduct(req: Request, res: Response, next: NextFunction) {
   try {
@@ -77,6 +77,30 @@ async function deleteProducts(req: Request, res: Response, next: NextFunction) {
     if (idExists == -1) {
       return next(createResponse(409, `Product doesn't exists with the given id`));
     }
+
+    await deleteProduct(productsData, idExists);
+
+    res.status(200).send({ message: "deleted" });
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function archiveProduct(req: Request, res: Response, next: NextFunction) {
+  try {
+    // get the products
+    let productsData: ProductList = await getProductsData();
+
+    // check if id exists
+    let idExists = productsData?.findIndex((el) => el.id == req.params.id);
+    if (idExists == -1) {
+      return next(createResponse(409, `Product doesn't exists with the given id`));
+    }
+
+    // update the productIndex
+    await updateProduct(productsData, { status: ProductStatus.Archived }, idExists);
+
+    res.status(200).send({ message: "archived" });
   } catch (e) {
     next(e);
   }
@@ -87,4 +111,5 @@ export default {
   getProducts,
   updateProducts,
   deleteProducts,
+  archiveProduct,
 };
