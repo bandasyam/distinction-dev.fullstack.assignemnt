@@ -20,23 +20,22 @@ interface Product {
 type EditType = "create" | "edit";
 
 export default function Products() {
+  const [loading, setLoading] = useState(false);
+
   const [data, setData] = useState<Product[]>([]);
   const [filteredData, setFilteredData] = useState<Product[]>([]);
   const [error, setError] = useState("");
-
   const [open, setOpen] = useState(false);
   const [productData, setProductData] = useState<Product | null>(null);
-
   const [formType, setFormType] = useState<EditType>("create");
-
   const [searchText, setSearchText] = useState("");
   const [searchTextActivated, setSearchTextActivated] = useState(false);
   const [deleteArchiveOpen, setDeleteArchiveOpen] = useState({ open: false, type: "", id: "" });
-
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
   async function fetchProducts(currentPage = 1) {
+    setLoading(true);
     try {
       let url = `${ip}/api/products?page=${currentPage}`;
       let result = await callApi(url, "GET");
@@ -46,9 +45,18 @@ export default function Products() {
         setHasMore(true);
       }
 
-      setData((prev: Product[]) => [...prev, ...result.data]);
+      if (currentPage == 1) {
+        setData(result.data);
+      } else {
+        setData((prev: Product[]) => [...prev, ...result.data]);
+      }
     } catch (e: any) {
       setError(e?.response?.data?.message || e?.message);
+    } finally {
+      console.log("finally");
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000 * 5);
     }
   }
 
@@ -71,7 +79,11 @@ export default function Products() {
   }
 
   useEffect(() => {
-    if (!searchTextActivated) {
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    if (!searchTextActivated && page > 1) {
       fetchProducts(page);
     }
   }, [page, searchTextActivated]);
