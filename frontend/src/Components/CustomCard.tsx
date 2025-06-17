@@ -60,7 +60,7 @@ export default function CustomCard({ el, setOpen, setProductData, setFormType, s
             </IconButton>
 
             <IconButton aria-label="settings" onClick={handleArchiveClick}>
-              {el.status == "archive" ? <UnarchiveIcon /> : <ArchiveIcon />}
+              {el.status == "archived" ? <UnarchiveIcon /> : <ArchiveIcon />}
             </IconButton>
           </Box>
         }
