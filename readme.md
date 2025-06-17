@@ -4,6 +4,13 @@
 2. Install all the node-modules using the command `npm install`
 3. To start the project use the command `npm start`
 
+> **Note:** If `npm install` and `npm start` is causing trouble try
+> From root project try commands `cd backend` & `npm i`
+> From root project try commands `cd frontend` & `npm i`
+> From root project try commands `npm i concurrently`
+> `npm start`
+
+
 > **Note:** MongoDB must be installed locally **with replica set configuration enabled** to support sessions (including **multi-document transactions**).  
 > Alternatively, you can use **MongoDB Atlas** or any cloud-hosted MongoDB instance by providing the appropriate connection URI.
 
