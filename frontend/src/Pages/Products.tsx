@@ -28,8 +28,9 @@ export default function Products() {
   const [productData, setProductData] = useState<Product | null>(null);
 
   const [formType, setFormType] = useState<EditType>("create");
-  const [searchText, setSearchText] = useState("");
 
+  const [searchText, setSearchText] = useState("");
+  const [searchTextActivated, setSearchTextActivated] = useState(false);
   const [deleteArchiveOpen, setDeleteArchiveOpen] = useState({ open: false, type: "", id: "" });
 
   async function fetchProducts() {
@@ -50,13 +51,25 @@ export default function Products() {
     setOpen(false);
   }
 
+  function handleSearchTextEnter(value: string) {
+    if (value.length) {
+      setSearchTextActivated(true);
+    } else {
+      setSearchTextActivated(false);
+    }
+
+    setSearchText(value);
+  }
+
   useEffect(() => {
     fetchProducts();
   }, []);
 
   useEffect(() => {
     const lowerSearch = searchText.toLowerCase();
-    setFilteredData(data.filter((product: Product) => product.tags.some((tag) => tag.toLowerCase().includes(lowerSearch))));
+    let val = data.filter((product: Product) => product.tags.some((tag) => tag.toLowerCase().includes(lowerSearch)));
+    console.log("val", val);
+    setFilteredData(val);
   }, [searchText]);
 
   const style = {
@@ -94,7 +107,7 @@ export default function Products() {
             </Button>
 
             <div style={{ flex: 1, minWidth: "250px", maxWidth: "400px" }}>
-              <TextField label="You can search based on tags" variant="outlined" fullWidth onChange={(e) => setSearchText(e.target.value)} />
+              <TextField label="You can search based on tags" variant="outlined" fullWidth onChange={(e) => handleSearchTextEnter(e.target.value)} />
             </div>
           </div>
 
@@ -102,7 +115,7 @@ export default function Products() {
             {!data?.length ? (
               <p>No Products to display</p>
             ) : (
-              (filteredData.length ? filteredData : data)?.map((el, index) => {
+              (searchTextActivated ? filteredData : data)?.map((el, index) => {
                 return (
                   <CustomCard
                     key={index}
@@ -136,7 +149,7 @@ export default function Products() {
               aria-describedby="modal-modal-description"
             >
               <Box sx={style}>
-                <CustomModalCard deleteArchiveOpen={deleteArchiveOpen} setDeleteArchiveOpen={setDeleteArchiveOpen} />
+                <CustomModalCard deleteArchiveOpen={deleteArchiveOpen} setDeleteArchiveOpen={setDeleteArchiveOpen} fetchProducts={fetchProducts} />
               </Box>
             </Modal>
           )}
