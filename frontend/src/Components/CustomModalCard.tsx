@@ -3,14 +3,21 @@ import React from "react";
 
 import { callApi, ip } from "../utils/api.helpers";
 
-export default function CustomModalCard({ deleteArchiveOpen, setDeleteArchiveOpen }: any) {
+export default function CustomModalCard({ deleteArchiveOpen, setDeleteArchiveOpen, fetchProducts }: any) {
   async function handleYesClick() {
     try {
-      let url = `${ip}/api/products/${deleteArchiveOpen?.id}`;
+      let url = `${ip}/api/products`;
       let method = deleteArchiveOpen?.type == "delete" ? "DELETE" : "PATCH";
 
+      if (deleteArchiveOpen?.type == "archive" || deleteArchiveOpen?.type == "unarchive") {
+        url += "/archive";
+      }
+
+      url += `/${deleteArchiveOpen?.id}`;
       let result = await callApi(url, method);
       console.log("result.data", result.data);
+      setDeleteArchiveOpen({ open: false, type: "", id: "" });
+      fetchProducts();
     } catch (e: any) {
       alert(e?.response?.data?.message || e?.message);
     }
