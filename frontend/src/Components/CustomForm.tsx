@@ -19,19 +19,16 @@ interface CustomFormProps {
 }
 
 export default function CustomForm({ formType, productData }: CustomFormProps) {
-  const [id, setId] = useState(() => productData?.id || uuidv4());
   const [name, setName] = useState(productData?.name);
   const [price, setPrice] = useState(productData?.price);
   const [tags, setTags] = useState(productData?.tags);
-
-  const [error, setError] = useState("");
 
   async function handleSubmitClick() {
     try {
       let url = `${ip}/api/products`;
       if (formType == "create") {
         let result = await callApi(url, "POST", {
-          id: id,
+          id: uuidv4(),
           name: name,
           price: price,
           status: "active",
@@ -39,15 +36,26 @@ export default function CustomForm({ formType, productData }: CustomFormProps) {
         });
 
         console.log("result.data", result.data);
+      } else {
+        let url = `${ip}/api/products/${productData?.id}`;
+        let result = await callApi(url, "PUT", {
+          name: name,
+          price: price,
+          tags: tags,
+        });
+
+        console.log("udpate result", result.data);
       }
-    } catch (e) {}
+    } catch (e: any) {
+      alert(e?.response?.data?.message || e?.message);
+    }
   }
 
   return (
     <form>
-      <TextField label="Name" variant="outlined" fullWidth margin="normal" onChange={(e) => setName(e.target.value)} />
-      <TextField label="price" variant="outlined" fullWidth margin="normal" onChange={(e) => setPrice(Number(e.target.value))} />
-      <TextField label="tags" variant="outlined" fullWidth margin="normal" onChange={(e) => setTags(e.target.value.split(","))} />
+      <TextField label="Name" variant="outlined" fullWidth margin="normal" value={name} onChange={(e) => setName(e.target.value)} />
+      <TextField label="price" variant="outlined" fullWidth margin="normal" value={price} onChange={(e) => setPrice(Number(e.target.value))} />
+      <TextField label="tags" variant="outlined" fullWidth margin="normal" value={tags} onChange={(e) => setTags(e.target.value.split(","))} />
       <Box display="flex" justifyContent="center" mt={2}>
         <Button variant="contained" color="inherit" type="submit" onClick={handleSubmitClick}>
           Submit
