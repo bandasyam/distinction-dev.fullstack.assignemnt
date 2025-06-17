@@ -20,8 +20,8 @@ interface Product {
 type EditType = "create" | "edit";
 
 export default function Products() {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+  const [data, setData] = useState<Product[]>([]);
+  const [filteredData, setFilteredData] = useState<Product[]>([]);
   const [error, setError] = useState("");
 
   const [open, setOpen] = useState(false);
@@ -37,7 +37,7 @@ export default function Products() {
     try {
       let url = `${ip}/api/products`;
       let result = await callApi(url, "GET");
-      setData(result.data);
+      setData((prev: Product[]) => [...prev, ...result.data]);
     } catch (e: any) {
       setError(e?.response?.data?.message || e?.message);
     }
@@ -67,9 +67,7 @@ export default function Products() {
 
   useEffect(() => {
     const lowerSearch = searchText.toLowerCase();
-    let val = data.filter((product: Product) => product.tags.some((tag) => tag.toLowerCase().includes(lowerSearch)));
-    console.log("val", val);
-    setFilteredData(val);
+    setFilteredData(data.filter((product: Product) => product.tags.some((tag) => tag.toLowerCase().includes(lowerSearch))));
   }, [searchText]);
 
   const style = {
