@@ -22,6 +22,7 @@ async function createProduct(req: Request, res: Response, next: NextFunction) {
     productsData = await getProductsData();
     res.status(201).send(productsData);
   } catch (e) {
+    console.log(e);
     next(e);
   }
 }
@@ -37,6 +38,7 @@ async function getProducts(req: Request, res: Response, next: NextFunction) {
       result = await getProductsDataWithPagination(pageNumber);
     }
 
+    result = result.filter((el: any) => el.status != ProductStatus.Delete);
     res.status(200).send(result);
   } catch (e) {
     next(e);
@@ -52,6 +54,11 @@ async function updateProducts(req: Request, res: Response, next: NextFunction) {
     let idExists = productsData?.findIndex((el) => el.id == req.params.id);
     if (idExists == -1) {
       return next(createResponse(409, `Product doesn't exists with the given id`));
+    }
+
+    // check if product is archived
+    if (productsData[idExists].status == "archived") {
+      return next(createResponse(400, `You cannot edit archived product`));
     }
 
     // update the productIndex
@@ -97,8 +104,18 @@ async function archiveProduct(req: Request, res: Response, next: NextFunction) {
       return next(createResponse(409, `Product doesn't exists with the given id`));
     }
 
+    let currentStatus = productsData[idExists].status;
+    let statusToUpdate;
+    if (currentStatus == ProductStatus.Archived) {
+      statusToUpdate = ProductStatus.Active;
+    } else if (currentStatus == ProductStatus.Active) {
+      statusToUpdate = ProductStatus.Archived;
+    } else {
+      return next(createResponse(400, `You cannot archive or unarchive a deleted product`));
+    }
+
     // update the productIndex
-    await updateProduct(productsData, { status: ProductStatus.Archived }, idExists);
+    await updateProduct(productsData, { status: statusToUpdate }, idExists);
 
     res.status(200).send({ message: "archived" });
   } catch (e) {

@@ -5,7 +5,7 @@ export const createProductSchema = joi.object({
   id: joi.string().required(),
   name: joi.string().required(),
   price: joi.number().required(),
-  status: joi.string().valid("active", "archived").required(),
+  status: joi.string().valid("active", "inactive", "archived").required(),
   tags: joi.array().items(joi.string().required()).required(),
 });
 

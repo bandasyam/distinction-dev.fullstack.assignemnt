@@ -18,7 +18,7 @@ router.put("/:id", bodyValidator(updateProductSchema), paramsValidator(productPa
 /** delete product */
 router.delete("/:id", paramsValidator(productParamsSchema), controller.deleteProducts);
 
-/**  */
-router.delete("/archive/:id", paramsValidator(productParamsSchema), controller.archiveProduct);
+/** archive product */
+router.patch("/archive/:id", paramsValidator(productParamsSchema), controller.archiveProduct);
 
 export default router;

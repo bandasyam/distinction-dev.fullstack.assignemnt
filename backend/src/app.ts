@@ -1,5 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
+import bodyParser from "body-parser";
+import cors from "cors";
 
 import { createResponse, createResponseInterface } from "./utils/helpers";
 
@@ -8,7 +10,14 @@ import productsRouter from "./routes/products.route";
 const app = express();
 
 app.use(express.json());
+app.use(bodyParser.json());
 app.use(morgan("dev"));
+app.use(cors());
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
 
 // routes
 app.use("/api/products", productsRouter);

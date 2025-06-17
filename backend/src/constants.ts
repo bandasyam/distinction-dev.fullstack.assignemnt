@@ -1,6 +1,7 @@
 export enum ProductStatus {
   Active = "active",
   Archived = "archived",
+  Delete = "in-active",
 }
 
 export interface Product {
