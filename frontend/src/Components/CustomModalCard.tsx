@@ -15,7 +15,6 @@ export default function CustomModalCard({ deleteArchiveOpen, setDeleteArchiveOpe
 
       url += `/${deleteArchiveOpen?.id}`;
       let result = await callApi(url, method);
-      console.log("result.data", result.data);
       setDeleteArchiveOpen({ open: false, type: "", id: "" });
       fetchProducts();
     } catch (e: any) {
