@@ -33,10 +33,19 @@ export default function Products() {
   const [searchTextActivated, setSearchTextActivated] = useState(false);
   const [deleteArchiveOpen, setDeleteArchiveOpen] = useState({ open: false, type: "", id: "" });
 
-  async function fetchProducts() {
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  async function fetchProducts(currentPage = 1) {
     try {
-      let url = `${ip}/api/products`;
+      let url = `${ip}/api/products?page=${currentPage}`;
       let result = await callApi(url, "GET");
+      if (!result.data.length) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
+
       setData((prev: Product[]) => [...prev, ...result.data]);
     } catch (e: any) {
       setError(e?.response?.data?.message || e?.message);
@@ -62,13 +71,28 @@ export default function Products() {
   }
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (!searchTextActivated) {
+      fetchProducts(page);
+    }
+  }, [page, searchTextActivated]);
 
   useEffect(() => {
     const lowerSearch = searchText.toLowerCase();
     setFilteredData(data.filter((product: Product) => product.tags.some((tag) => tag.toLowerCase().includes(lowerSearch))));
   }, [searchText]);
+
+  useEffect(() => {
+    function handleScroll() {
+      const nearBottom = window.innerHeight + document.documentElement.scrollTop + 300 >= document.documentElement.scrollHeight;
+
+      if (nearBottom && !searchTextActivated && hasMore) {
+        setPage((prev) => prev + 1);
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [searchTextActivated, hasMore]);
 
   const style = {
     position: "absolute" as const,
